@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const session = require('express-session');
 const { appendFileSync } = require('fs');
+const hbs = require('hbs');
 
 const app = express();
 const port = 3000;
@@ -23,9 +24,20 @@ app.use(express.static(path1));
 app.set("views",path1)
 
 
-app.get("", (req, res) => {
-    res.render("index");
+app.get("/", (req, res) => {
+    if (req.session && req.session.loggedInUser) {
+        const loggedInUser = req.session.loggedInUser;
+        res.render("index", { loggedInUser });
+    } else {
+        res.render("index");
+    }
 });
+
+
+
+
+
+
 
 
 
@@ -49,45 +61,48 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
 });
-
 const User = mongoose.model('User1', userSchema);
 
+hbs.registerHelper('isLoggedIn', function (value) {
+    return value === 'false';
+});
+
+
+
 app.post('/login', async (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
+    const { email, password } = req.body;
 
     try {
+        // Check if the user is already logged in
         if (req.session.loggedInUser) {
-            console.log('hre')
-            return res.send('Already loggined ');
-            
+            const loggedInUser = req.session.loggedInUser;
+
+            res.render('index', { loggedInUser });        }
+
+        // Query the database to find the user by email and password (make sure to hash the password)
+        const user = await User.findOne({ email, password });
+
+        if (user) {
+            req.session.loggedInUser = user;
+
+            const signupSuccess = req.query.signupSuccess === 'true';
+            const message = signupSuccess ? 'Signup successful! You are now logged in.' : 'Login successful!';
+            const loggedInUser = req.session.loggedInUser;
+            hbs.registerHelper('isLoggedIn', function (value) {
+                return value === 'true';
+            });
+            const alert="You are Logginned successfully";
+
+
+            res.render('index', { loggedInUser, message,alert });
+
+        } else {
+            // Incorrect email or password
+            return res.redirect('/login.html?message=' + encodeURIComponent('Invalid email or password'));
         }
-
-        else{
-            const user = await User.findOne({ email, password });
-
-            if (user) {
-                req.session.loggedInUser = user;
-
-
-
-                console.log(user,"its hete");
-    
-                const signupSuccess = req.query.signupSuccess === 'true';
-                const message = signupSuccess ? 'Signup successful! You are now logged in.' : 'Login successful!';
-    
-    
-    
-                res.render('index', { message,loggedInUser: user });
-            } else {
-                res.send('Invalid email or password');
-            }
-        }
-
-       
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
     }
 });
 
@@ -99,6 +114,9 @@ app.post('/logout', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             // Redirect to the login page after logout
+            hbs.registerHelper('isLoggedIn', function (value) {
+                return value === 'false';
+            });
             res.redirect('/login.html');
         }
     });
@@ -120,7 +138,7 @@ app.post('/signup', async (req, res) => {
 
             req.session.loggedInUser = newUser;
 
-            res.redirect('/index.html?signupSuccess=true');
+            res.redirect('/?signupSuccess=true');
         }
     } catch (error) {
         console.error(error);

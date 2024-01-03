@@ -42,7 +42,7 @@
         </div>
         <nav class="canvas-menu mobile-menu">
             <ul>
-                <li><a href="./index.html">Home</a></li>
+                <li><a href="/">Home</a></li>
                 <li><a href="./class-details.html">Classes</a></li>
                 <li><a href="./team.html">Trainers</a></li>
                 <li><a href="./services.html">MemberShip</a></li>
@@ -84,7 +84,7 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="logo">
-                        <a href="./index.html">
+                        <a href="/">
                             <img src="img/logo.png" alt="">
                         </a>
                     </div>
@@ -92,7 +92,7 @@
                 <div class="col-lg-6">
                     <nav class="nav-menu">
                         <ul>
-                            <li><a href="./index.html">Home</a></li>
+                            <li><a href="/">Home</a></li>
                             <li><a href="./class-details.html">Classes</a></li>
                             <li><a href="./team.html">Trainers</a></li>
                             <li><a href="./Membership.html">MemberShip</a></li>
@@ -135,12 +135,14 @@
                             <a href="#"><i class="fa fa-twitter"></i></a>
                             <a href="#"><i class="fa fa-youtube-play"></i></a>
                             <a href="#"><i class="fa fa-instagram"></i></a> -->
-                            <div class="btn btn-danger ">
-                                <a class="text-white p-0" href="login.html">Login</a>
-                            </div>
-                            <div class="btn mx-3 btn-danger">
-                                <a class="text-white" href="signup.html">Signup</a>
-                            </div>
+
+                            <form action="/logout" method="post">
+
+                                <button type="submit" class="btn btn-danger" >Logout</button>
+
+
+
+                           </form>
 
                         </div>
                     </div>
@@ -177,7 +179,7 @@
 
                                 <div class="col-sm-8">
                                     <div class="section-title mt-5 chart-calculate-title">
-                                        <h2>{{loggedInUser.name}}</h2>
+                                        <h2>Name</h2>
                                     </div>
                                     <input type="text" name="name" placeholder="Name" value="{{loggedInUser.name}}"
                                         >
